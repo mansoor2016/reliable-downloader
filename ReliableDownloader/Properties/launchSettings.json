@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ReliableDownloader": {
+      "commandName": "Project",
+      "commandLineArgs": "--url \"https://installerstaging.accurx.com/chain/3.55.11050.0/accuRx.Installer.Local.msi\" --filename \"myfirstdonwload.msi\""
+    }
+  }
+}

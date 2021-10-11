@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ReliableDownloader;
+using System.Reflection;
+using Microsoft.Extensions.Configuration;
+using ReliableDownloader.Downloader;
+using ReliableDownloader.FileWriter;
+using ReliableDownloader.RetryPolicy;
 
 namespace ReliableDownloader
 {
@@ -8,11 +12,25 @@ namespace ReliableDownloader
     {
         public static async Task Main(string[] args)
         {
-            // If this url 404's, you can get a live one from https://installerstaging.accurx.com/chain/latest.json.
-            var exampleUrl = "https://installerstaging.accurx.com/chain/3.55.11050.0/accuRx.Installer.Local.msi";
-            var exampleFilePath = "C:/Users/[USER]/myfirstdownload.msi";
-            var fileDownloader = new FileDownloader();
-            await fileDownloader.DownloadFile(exampleUrl, exampleFilePath, progress => { Console.WriteLine($"Percent progress is {progress.ProgressPercent}"); });
+            try
+            {
+                var builder = new ConfigurationBuilder().AddCommandLine(args);
+                var config = builder.Build();
+
+                var inputSanitiser = new InputSanitiser(config);
+                var exampleUrl = inputSanitiser.ReturnSanitisedInput("url");
+                var exampleFilePath = inputSanitiser.ReturnSanitisedInput("filename");
+
+                var webSystemCalls = new WebSystemCalls();
+                var fileDownloader = new FileDownloader(webSystemCalls, new PartialDownloader(webSystemCalls), new StreamToFileWriter(), new RetryForeverWithIncreasingWait());
+
+                await fileDownloader.DownloadFileAsync(exampleUrl, exampleFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Terminating application: {Assembly.GetExecutingAssembly()}.");
+                Console.Error.WriteLine($"Unexpected exception encountered: {ex}.");
+            }
         }
     }
 }
