@@ -1,6 +1,6 @@
-﻿#Reliable Downloader
+﻿# Reliable Downloader
 
-##Summary
+## Summary
 Simple command line application for reliably downloading web resource. Resilienc is provided through various retry policies, two implemented at present:
 - NoRetry: No resilience, if connection fails, the process will end.
 - RetryForeverWithIncreasingWait: Will retry forever with increase time between retries.
